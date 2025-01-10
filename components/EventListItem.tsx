@@ -18,7 +18,7 @@ import {Link} from 'expo-router';
             <Text className='text-gray-700'>{event.location} </Text>
           </View>
           {/* Events Image */}
-          <Image source={{ uri: event.image}} className=" aspect-video w-2/5 rounded-xl" />
+          <Image source={{ uri: event.image_uri}} className=" aspect-video w-2/5 rounded-xl" />
 
         </View>
 
