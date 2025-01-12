@@ -7,7 +7,7 @@ import { useAuth } from '~/contexts/AuthProvider';
 export default function TabLayout() {
 
   const {isAuthenticated} = useAuth();
-  console.warn( isAuthenticated)
+  // console.warn( isAuthenticated)
 
   if (!isAuthenticated) {
     return <Redirect href={'/login'} />
@@ -31,13 +31,24 @@ export default function TabLayout() {
           ),
         }}
       />
+
+      <Tabs.Screen
+        name="events"
+        options={{
+          title: 'Novo Evento',
+          tabBarIcon: ({ color }) => <TabBarIcon name="calendar" color={color} />,
+        }}
+
+      />
+
       <Tabs.Screen
         name="profile"
         options={{
-          title: 'Profile',
+          title: 'Perfil',
           tabBarIcon: ({ color }) => <TabBarIcon name="user" color={color} />,
         }}
       />
+
     </Tabs>
   );
 }

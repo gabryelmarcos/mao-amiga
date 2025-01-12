@@ -1,4 +1,4 @@
-import { Stack } from 'expo-router';
+import { Stack, useRouter } from 'expo-router';
 import { useEffect, useState } from 'react';
 import { Alert, Button, Pressable, TextInput, View, Text } from 'react-native';
 import { useAuth } from '~/contexts/AuthProvider'; // Contexto de autenticação
@@ -13,7 +13,11 @@ export default function Profile() {
   const [website, setWebsite] = useState(''); // Estado para armazenar o site
   const [loading, setLoading] = useState(false); // Estado de carregamento
 
+  const router = useRouter();
+
+
   useEffect(() => {
+    
     // Função para buscar o perfil do Firestore
     const fetchUserProfile = async () => {
       if (user?.uid) {
@@ -66,9 +70,13 @@ export default function Profile() {
     }
   };
 
+  function handleONGLogin() {
+    router.push('/newEvent'); // Redireciona para o arquivo loginOng.tsx
+}
+
   return (
     <View className="flex-1 gap-3 bg-white p-5">
-      <Stack.Screen options={{ title: 'Profile' }} />
+      <Stack.Screen options={{ title: 'Perfil' }} />
 
       {/* Campo de email, não editável */}
       <TextInput
@@ -106,6 +114,15 @@ export default function Profile() {
         className="rounded-md border border-gray-200 p-3"
       />
 
+      <Pressable
+        onPress={handleONGLogin}
+        disabled={loading}
+        className="items-center rounded-md border-2 border-red-500 p-3 px-8"
+        
+      >
+        <Text className="text-lg font-bold text-red-500">Criar um novo Evento</Text>
+      </Pressable>
+
       {/* Botão para salvar as alterações */}
       <Pressable
         onPress={updateProfile}
@@ -118,5 +135,6 @@ export default function Profile() {
       {/* Botão para deslogar */}
       <Button title="Sign out" onPress={() => signOut(auth)} />
     </View>
+    
   );
 }

@@ -1,16 +1,16 @@
-import React, { useState } from 'react';
-import { View, TextInput, Text, StyleSheet, TouchableOpacity,Pressable } from 'react-native';
+import React, { useState } from 'react'; 
+import { View, TextInput, Text, StyleSheet, TouchableOpacity, Pressable } from 'react-native';
 import { auth } from '~/utils/firebase'; // Certifique-se de que está importando o auth corretamente do firebase
 import { signInWithEmailAndPassword, createUserWithEmailAndPassword } from 'firebase/auth';
 import { FirebaseError } from 'firebase/app';  // Importe o tipo de erro do Firebase
-import { Stack } from 'expo-router';
-
+import { useRouter, Stack } from 'expo-router';  // Importe o hook useRouter para navegação
 
 export default function LoginScreen() {
-
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
+    const router = useRouter(); // Hook de navegação
 
+    // Função para login do usuário
     async function handleLogin() {
         try {
             await signInWithEmailAndPassword(auth, email, password);
@@ -25,85 +25,50 @@ export default function LoginScreen() {
         }
     }
 
+    // Função para criar usuário
     async function handleCreateUser() {
-            await createUserWithEmailAndPassword(auth,email,password)
-        }
+        await createUserWithEmailAndPassword(auth, email, password);
+    }
+
+    // Função para redirecionar para a tela de login/cadastro da ONG
+    function handleONGLogin() {
+        router.push('/loginOng'); // Redireciona para o arquivo loginOng.tsx
+    }
 
     return (
-        <View className='flex-1 bg-white  gap-3  p-5'>
-
-            <Stack.Screen options={{title:"Login"}} />
+        <View className="flex-1 bg-white gap-3 p-5">
             
-            {/* <Text>Email: </Text> */}
-
+            <Stack.Screen options={{title:"Pagina Inicial"}} />
+            
             <TextInput 
-                className='rounded-md border border-gray-200 p-3 '
+                className="rounded-md border border-gray-200 p-3"
                 placeholder="Digite seu Email"
                 value={email}
                 onChangeText={(text) => setEmail(text)}
             />
 
-            {/* <Text>Senha:</Text> */}
-
             <TextInput 
-                
-                className='rounded-md border border-gray-200 p-3 '
+                className="rounded-md border border-gray-200 p-3"
                 placeholder="Digite sua Senha"
                 value={password}
                 onChangeText={(text) => setPassword(text)}
                 secureTextEntry={true}
             />
 
-            <View className='flex-row gap-3'>
-                <Pressable onPress={handleLogin} className='flex-1 rounded-md border-2 p-3 px-8 items-center'>
-                    <Text className='text-red-500 text-pink-500 text-lg font-bold '>Entrar</Text>
+            <View className="flex-row gap-3">
+                <Pressable onPress={handleLogin} className="flex-1 rounded-md border-2 p-3 px-8 items-center">
+                    <Text className="text-red-500 text-pink-500 text-lg font-bold">Entrar</Text>
                 </Pressable>
 
-                <Pressable onPress={handleCreateUser} className='flex-1 rounded-md bg-pink-500 p-3 px-8 items-center'>
-                    <Text className='text-lg font-bold text-white'>Cadastrar</Text>
+                <Pressable onPress={handleCreateUser} className="flex-1 rounded-md bg-pink-500 p-3 px-8 items-center">
+                    <Text className="text-lg font-bold text-white">Cadastrar</Text>
                 </Pressable>
-
             </View>
 
-           
+            {/* Novo botão de Login/Cadastro para ONG */}
+            <Pressable onPress={handleONGLogin} className="mt-4 rounded-md bg-blue-500 p-3 px-8 items-center">
+                <Text className="text-lg font-bold text-white">Login/Cadastro para ONGs</Text>
+            </Pressable>
         </View>
     );
 }
-
-// const styles = StyleSheet.create({
-//     container: {
-//         flex: 1,
-//         paddingTop: 50,
-//         backgroundColor: 'yellowgreen',
-//     },
-
-//     input: {
-//         marginLeft: 8,
-//         marginRight: 8,
-//         borderWidth: 1,
-//         marginBottom: 14,
-//         padding: 10,
-//     },
-
-//     button: {
-//         backgroundColor: "#000",
-//         marginRight: 8,
-//         marginLeft: 8,
-//         padding: 10,
-//         borderRadius: 5,
-//     },
-
-//     buttonText: {
-//         color: '#FFFFFF',
-//         textAlign: 'center',
-//     },
-
-//     linkButton: {
-//         marginTop: 10,
-//         alignItems: 'center',
-//     },
-
-//     linkText: {
-//         color: '#0000FF',
-//     },
-// });

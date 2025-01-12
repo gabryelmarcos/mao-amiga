@@ -2,7 +2,7 @@ import { Text, View, Image, Pressable } from 'react-native';
 import { useLocalSearchParams, Stack } from 'expo-router';
 import dayjs from 'dayjs';
 import { useState, useEffect } from 'react';
-import { getFirestore, doc, getDoc, collection, addDoc } from 'firebase/firestore';
+import { getFirestore, doc, getDoc, collection, addDoc, query, where, getDocs } from 'firebase/firestore';
 import { getAuth } from 'firebase/auth';
 
 // Inicializando o Firestore
@@ -13,6 +13,7 @@ export default function EventPage() {
     const { id } = useLocalSearchParams();
     const [event, setEvent] = useState(null);  // Estado para armazenar os dados do evento
     const [error, setError] = useState(null);  // Estado para erro caso o evento não seja encontrado
+    const [isParticipating, setIsParticipating] = useState(false); // Estado para verificar se o usuário está participando
 
     useEffect(() => {
         // Função para buscar evento do Firestore
@@ -32,21 +33,33 @@ export default function EventPage() {
             }
         };
 
+        // Função para verificar se o usuário já está participando do evento
+        const checkUserParticipation = async () => {
+            try {
+                const userId = auth.currentUser.uid;
+                const attendancesRef = collection(db, 'attendances');
+                const q = query(attendancesRef, where('user_id', '==', userId), where('event_id', '==', id));
+                const querySnapshot = await getDocs(q);
+
+                if (!querySnapshot.empty) {
+                    setIsParticipating(true); // Usuário já está participando
+                }
+            } catch (err) {
+                console.error('Erro ao verificar participação', err);
+            }
+        };
+
         if (id) {
             fetchEvent();  // Chama a função para buscar o evento
+            checkUserParticipation(); // Verifica se o usuário está participando
         }
     }, [id]);
 
     // Função para o usuário participar do evento
     const joinEvent = async () => {
         try {
-            // Obter o ID do usuário logado
             const userId = auth.currentUser.uid;
-
-            // Referência para a coleção de participações
             const attendancesRef = collection(db, 'attendances');
-
-            // Adiciona a participação na coleção
             await addDoc(attendancesRef, {
                 user_id: userId,
                 event_id: id,
@@ -54,6 +67,7 @@ export default function EventPage() {
             });
 
             console.log('Participação registrada com sucesso');
+            setIsParticipating(true); // Atualiza o estado para indicar que o usuário está participando
         } catch (err) {
             setError('Erro ao registrar participação');
             console.error(err);
@@ -86,8 +100,13 @@ export default function EventPage() {
             {/* Footer */}
             <View className="absolute bottom-0 left-0 right-0 flex-row justify-between border-t-2 border-gray-300 p-5 pb-10">
                 <Text className="text-xl font-semiBold">Doar</Text>
-                <Pressable onPress={joinEvent} className="rounded-md bg-pink-500 p-5 px-8">
-                    <Text className="text-lg font-bold text-white">Participar</Text>
+                <Pressable
+                    onPress={isParticipating ? null : joinEvent} // Impede a inscrição se já estiver participando
+                    className="rounded-md bg-pink-500 p-5 px-8"
+                >
+                    <Text className="text-lg font-bold text-white">
+                        {isParticipating ? 'Já Participando' : 'Participar'}
+                    </Text>
                 </Pressable>
             </View>
         </View>
