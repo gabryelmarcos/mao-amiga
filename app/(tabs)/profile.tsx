@@ -12,12 +12,11 @@ export default function Profile() {
   const [username, setUsername] = useState(''); // Estado para armazenar o nome de usuário
   const [website, setWebsite] = useState(''); // Estado para armazenar o site
   const [loading, setLoading] = useState(false); // Estado de carregamento
+  const [isONG, setIsONG] = useState(false); // Estado para verificar se o usuário é 'ong'
 
   const router = useRouter();
 
-
   useEffect(() => {
-    
     // Função para buscar o perfil do Firestore
     const fetchUserProfile = async () => {
       if (user?.uid) {
@@ -31,6 +30,11 @@ export default function Profile() {
             setFullName(userData.full_name || '');
             setUsername(userData.username || '');
             setWebsite(userData.website || '');
+
+            // Verifica o tipo de usuário e atualiza o estado
+            if (userData.typeUser === 'ong') {
+              setIsONG(true); // Se for 'ong', mostra o botão
+            }
           }
         } catch (error) {
           console.error('Erro ao buscar o perfil do usuário:', error);
@@ -71,8 +75,8 @@ export default function Profile() {
   };
 
   function handleONGLogin() {
-    router.push('/newEvent'); // Redireciona para o arquivo loginOng.tsx
-}
+    router.push('/newEvent'); // Redireciona para a página de criação de evento
+  }
 
   return (
     <View className="flex-1 gap-3 bg-white p-5">
@@ -114,14 +118,16 @@ export default function Profile() {
         className="rounded-md border border-gray-200 p-3"
       />
 
-      <Pressable
-        onPress={handleONGLogin}
-        disabled={loading}
-        className="items-center rounded-md border-2 border-red-500 p-3 px-8"
-        
-      >
-        <Text className="text-lg font-bold text-red-500">Criar um novo Evento</Text>
-      </Pressable>
+      {/* Verifica se o usuário é 'ong' e exibe o botão */}
+      {isONG && (
+        <Pressable
+          onPress={handleONGLogin}
+          disabled={loading}
+          className="items-center rounded-md border-2 border-red-500 p-3 px-8"
+        >
+          <Text className="text-lg font-bold text-red-500">Criar um novo Evento</Text>
+        </Pressable>
+      )}
 
       {/* Botão para salvar as alterações */}
       <Pressable
@@ -135,6 +141,5 @@ export default function Profile() {
       {/* Botão para deslogar */}
       <Button title="Sign out" onPress={() => signOut(auth)} />
     </View>
-    
   );
 }
