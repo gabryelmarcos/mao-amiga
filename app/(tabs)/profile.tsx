@@ -75,7 +75,7 @@ export default function Profile() {
   };
 
   function handleONGLogin() {
-    router.push('/newEvent'); // Redireciona para a página de criação de evento
+    router.push('/myEvents'); // Redireciona para a página de criação de evento
   }
 
   return (
@@ -128,6 +128,14 @@ export default function Profile() {
           <Text className="text-lg font-bold text-red-500">Criar um novo Evento</Text>
         </Pressable>
       )}
+
+      <Pressable
+        onPress={handleONGLogin}
+        disabled={loading}
+        className="items-center rounded-md border-2 border-red-500 p-3 px-8"
+      >
+        <Text className="text-lg font-bold text-red-500">Criar um novo Evento</Text>
+      </Pressable>
 
       {/* Botão para salvar as alterações */}
       <Pressable

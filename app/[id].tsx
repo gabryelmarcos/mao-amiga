@@ -2,7 +2,7 @@ import { Text, View, Image, Pressable } from 'react-native';
 import { useLocalSearchParams, Stack } from 'expo-router';
 import dayjs from 'dayjs';
 import { useState, useEffect } from 'react';
-import { getFirestore, doc, getDoc, collection, addDoc, query, where, getDocs } from 'firebase/firestore';
+import { getFirestore, doc, getDoc, collection, addDoc, query, where, getDocs, setDoc, updateDoc } from 'firebase/firestore';
 import { getAuth } from 'firebase/auth';
 
 // Inicializando o Firestore
@@ -37,12 +37,14 @@ export default function EventPage() {
         const checkUserParticipation = async () => {
             try {
                 const userId = auth.currentUser.uid;
-                const attendancesRef = collection(db, 'attendances');
-                const q = query(attendancesRef, where('user_id', '==', userId), where('event_id', '==', id));
-                const querySnapshot = await getDocs(q);
+                const attendanceRef = doc(db, 'attendances', userId);  // Usando o ID do usuário como documento
+                const docSnap = await getDoc(attendanceRef);
 
-                if (!querySnapshot.empty) {
-                    setIsParticipating(true); // Usuário já está participando
+                if (docSnap.exists()) {
+                    const userAttendance = docSnap.data();
+                    if (userAttendance.accepted && userAttendance.accepted.includes(id)) {
+                        setIsParticipating(true);  // Usuário já está participando do evento
+                    }
                 }
             } catch (err) {
                 console.error('Erro ao verificar participação', err);
@@ -59,12 +61,30 @@ export default function EventPage() {
     const joinEvent = async () => {
         try {
             const userId = auth.currentUser.uid;
-            const attendancesRef = collection(db, 'attendances');
-            await addDoc(attendancesRef, {
-                user_id: userId,
-                event_id: id,
-                timestamp: new Date(),
-            });
+            const attendanceRef = doc(db, 'attendances', userId);  // Documento de "attendance" do usuário
+
+            // Verificar se o usuário já possui o campo "accepted" e o evento atual
+            const docSnap = await getDoc(attendanceRef);
+            if (docSnap.exists()) {
+                // Documento existe, atualizamos o campo "accepted" com o novo evento
+                const userAttendance = docSnap.data();
+                if (!userAttendance.accepted) {
+                    // Se o campo "accepted" não existir, criamos ele como um array
+                    await updateDoc(attendanceRef, {
+                        accepted: [id],  // Inicializa com o evento atual
+                    });
+                } else if (!userAttendance.accepted.includes(id)) {
+                    // Se o evento ainda não está na lista de eventos aceitos
+                    await updateDoc(attendanceRef, {
+                        accepted: [...userAttendance.accepted, id],  // Adiciona o novo evento
+                    });
+                }
+            } else {
+                // Documento não existe, cria o novo documento com o evento
+                await setDoc(attendanceRef, {
+                    accepted: [id],  // Cria com o evento atual
+                });
+            }
 
             console.log('Participação registrada com sucesso');
             setIsParticipating(true); // Atualiza o estado para indicar que o usuário está participando
