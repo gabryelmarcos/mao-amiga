@@ -27,14 +27,13 @@ export default function Events() {
 
   // Chama a função fetchEvents assim que o componente for montado
   useEffect(() => {
-    console.log('useEffect foi chamado');
     fetchEvents();
   }, []);  // O array vazio significa que o useEffect será chamado apenas uma vez
 
   return (
     <>
       {/* título da página */}
-      <Stack.Screen options={{ title: 'Events' }} /> 
+      <Stack.Screen options={{ title: 'Eventos' }} /> 
 
       {/* FlatList para exibir os eventos */}
       <FlatList
