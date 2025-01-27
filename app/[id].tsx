@@ -125,7 +125,7 @@ export default function EventPage() {
                     className="rounded-md bg-pink-500 p-5 px-8"
                 >
                     <Text className="text-lg font-bold text-white">
-                        {isParticipating ? 'Já Participando' : 'Participar'}
+                        {isParticipating ? 'Solicitado' : 'Participar'}
                     </Text>
                 </Pressable>
             </View>

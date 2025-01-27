@@ -1,5 +1,5 @@
 import React, { useState } from 'react'; 
-import { View, TextInput, Text, StyleSheet, TouchableOpacity, Pressable } from 'react-native';
+import { View, TextInput, Text, StyleSheet, TouchableOpacity, Pressable , Image} from 'react-native';
 import { auth } from '~/utils/firebase'; // Certifique-se de que está importando o auth corretamente do firebase
 import { signInWithEmailAndPassword, createUserWithEmailAndPassword } from 'firebase/auth';
 import { FirebaseError } from 'firebase/app';  // Importe o tipo de erro do Firebase
@@ -39,6 +39,8 @@ export default function LoginScreen() {
         <View className="flex-1 bg-white gap-3 p-5">
             
             <Stack.Screen options={{title:"Pagina Inicial"}} />
+
+            {/* <Image style={{width: 200, height:200}} source={require('~/assets/girlHeart.png')} /> */}
             
             <TextInput 
                 className="rounded-md border border-gray-200 p-3"

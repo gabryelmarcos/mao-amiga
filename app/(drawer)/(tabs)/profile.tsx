@@ -74,9 +74,9 @@ export default function Profile() {
     }
   };
 
-  function handleONGLogin() {
-    router.push('/myEvents'); // Redireciona para a página de criação de evento
-  }
+  // function handleONGLogin() {
+  //   router.push('/myEvents'); // Redireciona para a página de criação de evento
+  // }
 
   return (
     <View className="flex-1 gap-3 bg-white p-5">
@@ -129,13 +129,13 @@ export default function Profile() {
         </Pressable>
       )}
 
-      <Pressable
+      {/* <Pressable
         onPress={handleONGLogin}
         disabled={loading}
         className="items-center rounded-md border-2 border-red-500 p-3 px-8"
       >
         <Text className="text-lg font-bold text-red-500">Criar um novo Evento</Text>
-      </Pressable>
+      </Pressable> */}
 
       {/* Botão para salvar as alterações */}
       <Pressable
@@ -143,11 +143,11 @@ export default function Profile() {
         disabled={loading}
         className="items-center rounded-md border-2 border-red-500 p-3 px-8"
       >
-        <Text className="text-lg font-bold text-red-500">Save</Text>
+        <Text className="text-lg font-bold text-red-500">Salvar</Text>
       </Pressable>
 
       {/* Botão para deslogar */}
-      <Button title="Sign out" onPress={() => signOut(auth)} />
+      <Button title="Sair da conta" onPress={() => signOut(auth)} />
     </View>
   );
 }

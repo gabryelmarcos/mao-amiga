@@ -1,14 +1,12 @@
-import { Redirect, Stack } from "expo-router"
+import { Redirect, Stack } from "expo-router";
 import { useAuth } from '~/contexts/AuthProvider';
 
-
 export default function AuthLayout() {
-
-    const {isAuthenticated} = useAuth();
+    const { isAuthenticated } = useAuth();
 
     if (isAuthenticated) { 
-        return <Redirect href='/' />
+        return <Redirect href='/' />; // Caminho relativo para o arquivo "presentation"
     }
-    
-    return <Stack />
+
+    return <Stack />;
 }

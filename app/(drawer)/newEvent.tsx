@@ -1,4 +1,4 @@
-import { View, Text, TextInput, Pressable } from 'react-native';
+import { View, Text, TextInput, Pressable, SafeAreaView} from 'react-native';
 import { Stack } from 'expo-router';
 import { useState } from 'react';
 import { useAuth } from '~/contexts/AuthProvider';
@@ -87,8 +87,8 @@ export default function NewEvent() {
   };
 
   return (
-    <View className="flex-1 gap-3 bg-white p-5">
-      <Stack.Screen options={{ title: "Novo Evento" }} />
+    <SafeAreaView className="flex-1 gap-3 bg-white p-5">
+      {/* <Stack.Screen options={{ title: "Novo Evento" }} /> */}
 
       <TextInput
         placeholder="Título"
@@ -138,6 +138,6 @@ export default function NewEvent() {
           {loading ? 'Criando...' : 'Criar Novo Evento'}
         </Text>
       </Pressable>
-    </View>
+    </SafeAreaView>
   );
 }
