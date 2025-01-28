@@ -1,4 +1,4 @@
-import { Text, View, Image, Pressable } from 'react-native';
+import { Text, View, Image, Pressable, SafeAreaView } from 'react-native';
 import { useLocalSearchParams, Stack } from 'expo-router';
 import dayjs from 'dayjs';
 import { useState, useEffect } from 'react';
@@ -103,7 +103,7 @@ export default function EventPage() {
     }
 
     return (
-        <View className="flex-1 gap-3 bg-white p-3">
+        <SafeAreaView className="flex-1 gap-3 bg-white p-3">
             <Stack.Screen
                 options={{
                     title: 'Event',
@@ -129,6 +129,6 @@ export default function EventPage() {
                     </Text>
                 </Pressable>
             </View>
-        </View>
+        </SafeAreaView>
     );
 }

@@ -23,7 +23,7 @@ export default function DrawerLayout() {
 
                 <Drawer.Screen
                     name="(tabs)"
-                    options={{ drawerLabel: 'Home' }} // Nome que aparece no drawer
+                    options={{ drawerLabel: 'Home', headerShown: false, }} // Nome que aparece no drawer
                 />
 
                 <Drawer.Screen
