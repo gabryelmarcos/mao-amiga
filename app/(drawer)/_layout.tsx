@@ -31,10 +31,10 @@ export default function DrawerLayout() {
                     options={{ drawerLabel: 'Minhas Participações' }} // Nome que aparece no drawer
                 />
 
-                <Drawer.Screen
+                {/* <Drawer.Screen
                     name="newEvent"
                     options={{ drawerLabel: 'Adicionar Evento' }} // Nome que aparece no drawer
-                />
+                /> */}
             </Drawer>
         </GestureHandlerRootView>
     );

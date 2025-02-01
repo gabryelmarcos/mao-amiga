@@ -6,14 +6,14 @@ import { useAuth } from '~/contexts/AuthProvider';
 
 export default function TabLayout() {
 
-  const {isAuthenticated} = useAuth();
+  const { isAuthenticated } = useAuth();
   // console.warn( isAuthenticated)
 
-   if (!isAuthenticated) {
+  if (!isAuthenticated) {
     return <Redirect href='/presentation' />; // Caminho relativo para o arquivo "presentation"
   }
 
-  
+
   return (
     <Tabs
       screenOptions={{
@@ -30,6 +30,15 @@ export default function TabLayout() {
             </Link>
           ),
         }}
+      />
+
+      <Tabs.Screen
+        name="newEvent"
+        options={{
+          title: 'Novo Evento',
+          tabBarIcon: ({ color }) => <TabBarIcon name="plus" color={color} />,
+        }}
+
       />
 
       <Tabs.Screen
