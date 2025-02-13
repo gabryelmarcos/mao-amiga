@@ -1,12 +1,13 @@
 import { Stack, useRouter } from 'expo-router';
 import { useEffect, useState } from 'react';
-import { Alert, Button, Pressable, TextInput, View, Text } from 'react-native';
+import { Alert, Button, Pressable, TextInput, View, Text, ScrollView } from 'react-native';
 import { useAuth } from '~/contexts/AuthProvider';
 import { auth, db } from '~/utils/firebase';
 import { getDoc, setDoc, doc } from 'firebase/firestore';
 import { signOut } from 'firebase/auth';
 
 export default function Profile() {
+
   const { user } = useAuth();
   const [fullName, setFullName] = useState('');
   const [username, setUsername] = useState('');
@@ -73,62 +74,117 @@ export default function Profile() {
   function handleONGLogin() {
     router.push('/myEvents');
   }
-
   return (
-    <View className="flex-1 gap-3 bg-white p-5">
-      <Stack.Screen options={{ title: 'Perfil' }} />
+    <ScrollView className="flex-1 bg-slate-50">
+      <Stack.Screen options={{ 
+        title: 'Perfil', 
+        headerTitleAlign: 'center',
+        headerTitleStyle: { color: '#1e293b' },
+        headerShadowVisible: false
+      }} />
 
-      <TextInput
-        editable={false}
-        value={user?.email || 'Carregando...'}
-        placeholder="Email"
-        autoCapitalize="none"
-        className="rounded-md border border-gray-200 p-3 text-gray-600"
-      />
+      <View className="p-6 space-y-8">
+        {/* Profile Header */}
+        <View className="items-center space-y-4">
+          <View className="w-20 h-20 bg-rose-500 rounded-full items-center justify-center shadow-lg">
+            <Text className="text-white text-4xl">❤️</Text>
+          </View>
+          
+          <View className="bg-emerald-100 px-4 py-3 rounded-full">
+            <Text className="text-emerald-800 text-sm font-medium">
+              Obrigado por sua colaboração! 🌟
+            </Text>
+          </View>
+        </View>
 
-      <TextInput
-        value={fullName}
-        onChangeText={setFullName}
-        placeholder="Full Name"
-        autoCapitalize="none"
-        className="rounded-md border border-gray-200 p-3"
-      />
+        {/* Information Section */}
+        <View className="space-y-6">
+          <View className="space-y-2">
+            <Text className="text-xs text-slate-500 font-medium uppercase tracking-wide ml-2">
+              Email
+            </Text>
+            <TextInput
+              editable={false}
+              value={user?.email || 'Carregando...'}
+              className="bg-slate-100 p-4 rounded-xl text-slate-700 font-medium"
+              placeholderTextColor="#64748b"
+            />
+          </View>
 
-      <TextInput
-        value={username}
-        onChangeText={setUsername}
-        placeholder="Username"
-        autoCapitalize="none"
-        className="rounded-md border border-gray-200 p-3"
-      />
+          <View className="space-y-2">
+            <Text className="text-xs text-slate-500 font-medium uppercase tracking-wide ml-2">
+              Nome Completo
+            </Text>
+            <TextInput
+              value={fullName}
+              onChangeText={setFullName}
+              className="bg-white p-4 rounded-xl border border-slate-200 text-slate-800 shadow-sm"
+              placeholder="Digite seu nome completo"
+              placeholderTextColor="#94a3b8"
+            />
+          </View>
 
-      <TextInput
-        value={website}
-        onChangeText={setWebsite}
-        placeholder="Website"
-        autoCapitalize="none"
-        className="rounded-md border border-gray-200 p-3"
-      />
+          <View className="space-y-2">
+            <Text className="text-xs text-slate-500 font-medium uppercase tracking-wide ml-2">
+              Username
+            </Text>
+            <TextInput
+              value={username}
+              onChangeText={setUsername}
+              className="bg-white p-4 rounded-xl border border-slate-200 text-slate-800 shadow-sm"
+              placeholder="Escolha um nome de usuário"
+              placeholderTextColor="#94a3b8"
+            />
+          </View>
 
-      {isONG && (
-        <Pressable
-          onPress={handleONGLogin}
-          disabled={loading}
-          className="items-center rounded-md border-2 border-red-500 p-3 px-8"
-        >
-          <Text className="text-lg font-bold text-red-500">Criar um novo Evento</Text>
-        </Pressable>
-      )}
+          <View className="space-y-2">
+            <Text className="text-xs text-slate-500 font-medium uppercase tracking-wide ml-2">
+              Website
+            </Text>
+            <TextInput
+              value={website}
+              onChangeText={setWebsite}
+              className="bg-white p-4 rounded-xl border border-slate-200 text-slate-800 shadow-sm"
+              placeholder="Adicione seu website"
+              placeholderTextColor="#94a3b8"
+            />
+          </View>
+        </View>
 
-      <Pressable
-        onPress={updateProfile}
-        disabled={loading}
-        className="items-center rounded-md border-2 border-red-500 p-3 px-8"
-      >
-        <Text className="text-lg font-bold text-red-500">Salvar</Text>
-      </Pressable>
+        {/* Action Buttons */}
+        <View className="space-y-4">
+          <Pressable
+            onPress={updateProfile}
+            disabled={loading}
+            className="bg-rose-600 p-5 rounded-xl items-center shadow-lg active:bg-rose-700 active:opacity-90"
+            style={{ opacity: loading ? 0.7 : 1 }}
+          >
+            <Text className="text-white font-bold text-base">
+              {loading ? 'Salvando...' : 'Salvar Alterações'}
+            </Text>
+          </Pressable>
 
-      <Button title="Sair da conta" onPress={() => signOut(auth)} />
-    </View>
+          {isONG && (
+            <Pressable
+              onPress={handleONGLogin}
+              className="bg-white p-5 rounded-xl border-2 border-rose-500 items-center active:bg-rose-50"
+            >
+              <Text className="text-rose-600 font-semibold text-base">
+                Gerenciar Eventos
+              </Text>
+            </Pressable>
+          )}
+
+          <Pressable
+            onPress={() => signOut(auth)}
+            className="p-4 items-center active:opacity-70"
+          >
+            <Text className="text-slate-500 text-base font-medium underline">
+              Sair da Conta
+            </Text>
+          </Pressable>
+        </View>
+      </View>
+    </ScrollView>
   );
 }

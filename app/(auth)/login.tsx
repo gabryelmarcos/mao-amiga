@@ -1,22 +1,20 @@
 import React, { useState } from 'react';
-import { View, TextInput, Text, StyleSheet, TouchableOpacity, Pressable, Image, KeyboardAvoidingView, Platform, Keyboard, TouchableWithoutFeedback } from 'react-native';
-import { auth } from '~/utils/firebase'; // Certifique-se de que está importando o auth corretamente do firebase 
-import { signInWithEmailAndPassword, createUserWithEmailAndPassword } from 'firebase/auth';
-import { FirebaseError } from 'firebase/app';  // Importe o tipo de erro do Firebase 
-import { useRouter, Stack } from 'expo-router';  // Importe o hook useRouter para navegação
+import { View, TextInput, Text, Pressable, KeyboardAvoidingView, Platform, Keyboard, TouchableWithoutFeedback } from 'react-native';
+import { auth } from '~/utils/firebase';
+import { signInWithEmailAndPassword } from 'firebase/auth';
+import { FirebaseError } from 'firebase/app';
+import { useRouter, Stack } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
+import { MaterialCommunityIcons } from '@expo/vector-icons';
 
 export default function LoginScreen() {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
-    const router = useRouter(); // Hook de navegação
+    const router = useRouter();
 
-    // Função para login do usuário
     async function handleLogin() {
         try {
             await signInWithEmailAndPassword(auth, email, password);
-            // Aqui você pode redirecionar o usuário para outra tela após o login
-            // alert('Login successful')
         } catch (error) {
             if (error instanceof FirebaseError) {
                 console.log('Erro no login:', error.message);
@@ -26,75 +24,97 @@ export default function LoginScreen() {
         }
     }
 
-    // Função para criar usuário
-    async function handleCreateUser() {
-        await createUserWithEmailAndPassword(auth, email, password);
-    }
-
     return (
-        
         <KeyboardAvoidingView
             behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-            style={{ flex: 1 }}
+            className="flex-1 bg-white"
         >
             <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
-                <View style={{ flex: 1, backgroundColor: 'white' }}>
-                    <Stack.Screen options={{ title: "Pagina Inicial", headerShown: false }} />
+                <View className="flex-1">
+                    <Stack.Screen options={{ headerShown: false }} />
+                    <StatusBar style="dark" />
 
-                    <Image
-                        className='h-full w-full absolute'
-                        source={require('~/assets/background.png')}
-                    />
-
-                    <View className='flex-row justify-around w-full absolute'>
-                        <Image
-                            className='h-[225] w-[90]'
-                            source={require('~/assets/light.png')}
-                        />
-
-                        <Image
-                            className='h-[160] w-[65]'
-                            source={require('~/assets/light.png')}
-                        />
-                    </View>
-
-                    <View className='h-full w-full flex justify-around pt-40 pb-10'>
-
-                        <View className='flex items-center'>
-                            <Text className='text-white font-bold tracking-wider text-5xl'>
-                                Acesso
+                    {/* Container Principal */}
+                    <View className="flex-1 justify-center p-8">
+                        
+                        {/* Cabeçalho */}
+                        <View className="items-center mb-16">
+                            <View className="bg-pink-100 w-20 h-20 rounded-2xl items-center justify-center mb-6">
+                                <MaterialCommunityIcons 
+                                    name="heart-outline" 
+                                    size={40} 
+                                    color="#db2777" 
+                                />
+                            </View>
+                            <Text className="text-3xl font-bold text-gray-900 mb-2">
+                                Bem-Vindo
                             </Text>
+                            <Text className="text-gray-500">Faça login para continuar</Text>
                         </View>
 
-                        <View className='flex items-center mx-4 space-y-4 gap-3'>
-                        
-                            <View className='bg-black/5 p-5 rounded-2xl w-full '>
-                                <TextInput 
-                                    placeholder="Digite seu Email"
-                                    value={email}
-                                    onChangeText={(text) => setEmail(text)}
-                                />
+                        {/* Formulário */}
+                        <View className="space-y-6">
+                            {/* Campo Email */}
+                            <View className="space-y-2">
+                                <Text className="text-sm text-gray-600">Email</Text>
+                                <View className="flex-row items-center bg-gray-50 rounded-lg px-4 py-3 border border-gray-200">
+                                    <MaterialCommunityIcons 
+                                        name="email-outline" 
+                                        size={20} 
+                                        color="#6b7280" 
+                                        className="mr-3" 
+                                    />
+                                    <TextInput
+                                        className="flex-1 text-gray-900"
+                                        placeholder="seu@email.com"
+                                        placeholderTextColor="#9ca3af"
+                                        value={email}
+                                        onChangeText={setEmail}
+                                        autoCapitalize="none"
+                                        keyboardType="email-address"
+                                    />
+                                </View>
                             </View>
 
-                            <View className='bg-black/5  p-5 rounded-2xl w-full mb-6'>
-                                <TextInput 
-                                    placeholder="Digite sua Senha"
-                                    value={password}
-                                    onChangeText={(text) => setPassword(text)}
-                                    secureTextEntry={true}
-                                />
+                            {/* Campo Senha */}
+                            <View className="space-y-2">
+                                <Text className="text-sm text-gray-600">Senha</Text>
+                                <View className="flex-row items-center bg-gray-50 rounded-lg px-4 py-3 border border-gray-200">
+                                    <MaterialCommunityIcons 
+                                        name="lock-outline" 
+                                        size={20} 
+                                        color="#6b7280" 
+                                        className="mr-3" 
+                                    />
+                                    <TextInput
+                                        className="flex-1 text-gray-900"
+                                        placeholder="••••••••"
+                                        placeholderTextColor="#9ca3af"
+                                        value={password}
+                                        onChangeText={setPassword}
+                                        secureTextEntry
+                                    />
+                                </View>
                             </View>
 
-                            <View className="flex-row gap-3">
-                                <Pressable onPress={handleLogin} className="flex-1 rounded-md border-2 p-3 px-8 items-center">
-                                    <Text className="text-red-500 text-pink-500 text-lg font-bold">Entrar</Text>
+                            {/* Botão de Login */}
+                            <Pressable
+                                onPress={handleLogin}
+                                className="bg-pink-600 rounded-lg p-4 shadow-sm active:bg-pink-700"
+                            >
+                                <Text className="text-white text-center font-medium">Entrar</Text>
+                            </Pressable>
+
+                            {/* Link de Cadastro */}
+                            <View className="flex-row justify-center pt-4">
+                                <Pressable 
+                                    onPress={() => router.push('/register')}
+                                    className="flex-row space-x-2"
+                                >
+                                    <Text className="text-gray-600">Não tem conta?</Text>
+                                    <Text className="text-pink-600 font-semibold">Criar conta</Text>
                                 </Pressable>
-
-                                <Pressable onPress={handleCreateUser} className="flex-1 rounded-md bg-pink-500 p-3 px-8 items-center">
-                                    <Text className="text-lg font-bold text-white">Cadastrar</Text>
-                                </Pressable>
                             </View>
-                        
                         </View>
                     </View>
                 </View>
