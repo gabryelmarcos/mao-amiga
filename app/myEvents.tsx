@@ -85,24 +85,32 @@ export default function MyEvents() {
     <View>
       <Stack.Screen options={{ title: 'Participações' }} />
 
-      <FlatList
-        className='bg-white'
-        style={{ backgroundColor: 'white' }}
-        data={events} // Dados de eventos filtrados
-        renderItem={({ item }) => (
-          <View>
-            <EventListItem event={item} />
-            {/* Botão para excluir a participação no evento */}
-            <Pressable
-              className='bg-gray-100 p-3 rounded-md mb-2'
-              onPress={() => confirmUnregisterEvent(item.id)} // Chama a função de confirmação
-            >
-              <Text className='text-red-500 text-center font-semibold'>Cancelar Participação</Text>
-            </Pressable>
-          </View>
-        )}
-        keyExtractor={(item) => item.id} // Extrai uma chave única para cada item
-      />
+      {events && events.length > 0 ? (
+        <FlatList
+          className="bg-white"
+          style={{ backgroundColor: 'white' }}
+          data={events} // Dados de eventos filtrados
+          renderItem={({ item }) => (
+            <View>
+              <EventListItem event={item} />
+              {/* Botão para excluir a participação no evento */}
+              <Pressable
+                className="mb-2 rounded-md bg-gray-100 p-3"
+                onPress={() => confirmUnregisterEvent(item.id)} // Chama a função de confirmação
+              >
+                <Text className="text-center font-semibold text-red-500">
+                  Cancelar Participação
+                </Text>
+              </Pressable>
+            </View>
+          )}
+          keyExtractor={(item) => item.id} // Extrai uma chave única para cada item
+        />
+      ) : (
+        <View>
+          <Text className='text-lg text-center my-20'>Sem participações</Text>
+        </View>
+      )}
     </View>
   );
-}
+};
