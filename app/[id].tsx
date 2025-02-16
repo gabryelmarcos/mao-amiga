@@ -13,7 +13,7 @@ export default function EventPage() {
     const { id } = useLocalSearchParams();
     const [event, setEvent] = useState(null);  // Estado para armazenar os dados do evento
     const [error, setError] = useState(null);  // Estado para erro caso o evento não seja encontrado
-    const [isParticipating, setIsParticipating] = useState(false); // Estado para verificar se o usuário está participando
+    const [isParticipating, setIsParticipating] = useState(false); // Estado para verificar se o usuário já está na fila de espera
 
     useEffect(() => {
         // Função para buscar evento do Firestore
@@ -33,63 +33,62 @@ export default function EventPage() {
             }
         };
 
-        // Função para verificar se o usuário já está participando do evento
-        const checkUserParticipation = async () => {
+        // Função para verificar se o usuário já está na fila de espera
+        const checkUserWaitingList = async () => {
             try {
-                const userId = auth.currentUser.uid;
-                const attendanceRef = doc(db, 'attendances', userId);  // Usando o ID do usuário como documento
-                const docSnap = await getDoc(attendanceRef);
+                const waitingListRef = doc(db, 'waiting_line', id);  // Referência à fila de espera do evento
 
+                const docSnap = await getDoc(waitingListRef);
                 if (docSnap.exists()) {
-                    const userAttendance = docSnap.data();
-                    if (userAttendance.accepted && userAttendance.accepted.includes(id)) {
-                        setIsParticipating(true);  // Usuário já está participando do evento
+                    const waitingList = docSnap.data();
+                    if (waitingList.user_id && waitingList.user_id.includes(auth.currentUser.uid)) {
+                        setIsParticipating(true);  // Usuário já está na fila de espera
                     }
                 }
             } catch (err) {
-                console.error('Erro ao verificar participação', err);
+                console.error('Erro ao verificar fila de espera', err);
             }
         };
 
         if (id) {
             fetchEvent();  // Chama a função para buscar o evento
-            checkUserParticipation(); // Verifica se o usuário está participando
+            checkUserWaitingList();  // Verifica se o usuário já está na fila de espera
         }
     }, [id]);
 
-    // Função para o usuário participar do evento
-    const joinEvent = async () => {
+    // Função para o usuário se inscrever na fila de espera
+    const joinWaitingList = async () => {
         try {
             const userId = auth.currentUser.uid;
-            const attendanceRef = doc(db, 'attendances', userId);  // Documento de "attendance" do usuário
+            const waitingListRef = doc(db, 'waiting_line', id);  // Referência à fila de espera do evento
 
-            // Verificar se o usuário já possui o campo "accepted" e o evento atual
-            const docSnap = await getDoc(attendanceRef);
+            // Verificar se a fila de espera já existe
+            const docSnap = await getDoc(waitingListRef);
             if (docSnap.exists()) {
-                // Documento existe, atualizamos o campo "accepted" com o novo evento
-                const userAttendance = docSnap.data();
-                if (!userAttendance.accepted) {
-                    // Se o campo "accepted" não existir, criamos ele como um array
-                    await updateDoc(attendanceRef, {
-                        accepted: [id],  // Inicializa com o evento atual
+                // Documento existe, atualizamos o array de user_id
+                const waitingList = docSnap.data();
+                if (!waitingList.user_id) {
+                    // Se o campo "user_id" não existir, criamos ele como um array
+                    await updateDoc(waitingListRef, {
+                        user_id: [userId],  // Inicializa com o ID do usuário
                     });
-                } else if (!userAttendance.accepted.includes(id)) {
-                    // Se o evento ainda não está na lista de eventos aceitos
-                    await updateDoc(attendanceRef, {
-                        accepted: [...userAttendance.accepted, id],  // Adiciona o novo evento
+                } else if (!waitingList.user_id.includes(userId)) {
+                    // Se o usuário ainda não estiver na fila, adicionamos o ID
+                    await updateDoc(waitingListRef, {
+                        user_id: [...waitingList.user_id, userId],  // Adiciona o ID do usuário
                     });
                 }
             } else {
-                // Documento não existe, cria o novo documento com o evento
-                await setDoc(attendanceRef, {
-                    accepted: [id],  // Cria com o evento atual
+                // Documento não existe, cria a fila de espera com o ID do usuário
+                await setDoc(waitingListRef, {
+                    user_id: [userId],  // Cria a fila com o ID do usuário
                 });
             }
 
-            console.log('Participação registrada com sucesso');
-            setIsParticipating(true); // Atualiza o estado para indicar que o usuário está participando
+            console.log('Usuário adicionado à fila de espera com sucesso');
+            setIsParticipating(true); // Atualiza o estado para indicar que o usuário está na fila de espera
         } catch (err) {
-            setError('Erro ao registrar participação');
+            setError('Erro ao adicionar à fila de espera');
             console.error(err);
         }
     };
@@ -106,7 +105,7 @@ export default function EventPage() {
         <SafeAreaView className="flex-1 gap-3 bg-white p-3">
             <Stack.Screen
                 options={{
-                    title: 'Event',
+                    title: 'Evento',
                     headerTintColor: 'black',
                 }}
             />
@@ -119,13 +118,13 @@ export default function EventPage() {
 
             {/* Footer */}
             <View className="absolute bottom-0 left-0 right-0 flex-row justify-between border-t-2 border-gray-300 p-5 pb-10">
-                <Text className="text-xl font-semiBold">Doar</Text>
+                <Text className="text-xl font-semiBold">Inscrever-se</Text>
                 <Pressable
-                    onPress={isParticipating ? null : joinEvent} // Impede a inscrição se já estiver participando
+                    onPress={isParticipating ? null : joinWaitingList} // Impede a inscrição se já estiver na fila de espera
                     className="rounded-md bg-pink-500 p-5 px-8"
                 >
                     <Text className="text-lg font-bold text-white">
-                        {isParticipating ? 'Solicitado' : 'Participar'}
+                        {isParticipating ? 'Na fila de espera' : 'Inscrever-se'}
                     </Text>
                 </Pressable>
             </View>

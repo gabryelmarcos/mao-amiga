@@ -2,7 +2,7 @@ import { View, Text, FlatList, Pressable, Alert } from 'react-native';
 import { Stack } from 'expo-router';
 import React, { useEffect, useState } from 'react';
 import EventListItem from '~/components/EventListItem';
-import { getFirestore, collection, getDocs, doc, getDoc, updateDoc, arrayRemove } from 'firebase/firestore';
+import { getFirestore, collection, onSnapshot, doc, updateDoc, arrayRemove } from 'firebase/firestore';
 import { getAuth } from 'firebase/auth';
 
 export default function MyEvents() {
@@ -10,34 +10,35 @@ export default function MyEvents() {
   const db = getFirestore();  // Inicializa o Firestore
   const auth = getAuth();  // Instância de autenticação do Firebase
 
-  // Função para buscar eventos do Firestore
-  const fetchEvents = async () => {
-    try {
-      const userId = auth.currentUser.uid;  // Obtém o ID do usuário logado
-      const attendancesRef = doc(db, 'attendances', userId);  // Referência para o documento de participações do usuário
-      const docSnap = await getDoc(attendancesRef);
+  // Função para buscar eventos do Firestore em tempo real
+  const fetchEvents = () => {
+    const userId = auth.currentUser.uid;  // Obtém o ID do usuário logado
+    const attendancesRef = doc(db, 'attendances', userId);  // Referência para o documento de participações do usuário
 
+    onSnapshot(attendancesRef, async (docSnap) => {
       if (docSnap.exists()) {
         const userAttendance = docSnap.data();
         const acceptedEvents = userAttendance.accepted || [];  // Pega os eventos aceitos (pode ser um array vazio)
 
-        // Agora, busca todos os eventos
+        // Agora, busca todos os eventos e escuta as mudanças
         const eventsRef = collection(db, 'events');
-        const querySnapshot = await getDocs(eventsRef);  // Obtém todos os documentos da coleção 'events'
-        const eventsData = querySnapshot.docs
-          .map(doc => {
-            const eventData = doc.data();
-            return { id: doc.id, ...eventData };
-          })
-          .filter(event => acceptedEvents.includes(event.id));  // Filtra os eventos aceitos pelo usuário
+        const unsubscribe = onSnapshot(eventsRef, (querySnapshot) => {
+          const eventsData = querySnapshot.docs
+            .map(doc => {
+              const eventData = doc.data();
+              return { id: doc.id, ...eventData };
+            })
+            .filter(event => acceptedEvents.includes(event.id));  // Filtra os eventos aceitos pelo usuário
 
-        setEvents(eventsData);  // Atualiza o estado com os eventos filtrados
+          setEvents(eventsData);  // Atualiza o estado com os eventos filtrados
+        });
+
+        // Cleanup da função de escuta quando o componente for desmontado
+        return () => unsubscribe();
       } else {
         console.log("Usuário não tem participação registrada.");
       }
-    } catch (error) {
-      console.error("Erro ao buscar eventos ou participações: ", error);
-    }
+    });
   };
 
   // Função para excluir a participação de um evento

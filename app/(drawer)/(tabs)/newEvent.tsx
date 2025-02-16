@@ -3,12 +3,12 @@ import { Stack } from 'expo-router';
 import { useState } from 'react';
 import { useAuth } from '~/contexts/AuthProvider';
 import { db } from '~/utils/firebase';
-import { collection, doc, setDoc, serverTimestamp } from 'firebase/firestore';
+import { collection, doc, setDoc, serverTimestamp, updateDoc, arrayUnion } from 'firebase/firestore';
 import api from '~/utils/apiCep';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 
 export default function NewEvent() {
-  
+
   const [loading, setLoading] = useState(false);
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
@@ -46,6 +46,7 @@ export default function NewEvent() {
       setLoading(true);
       const randomImageUrl = `https://picsum.photos/200/300?random=${Math.floor(Math.random() * 1000)}`;
 
+      // Cria o evento na coleção 'events'
       const eventRef = doc(collection(db, 'events'));
       await setDoc(eventRef, {
         title,
@@ -56,8 +57,24 @@ export default function NewEvent() {
         createdAt: serverTimestamp(),
       });
 
+      
+      const waitingLineRef = doc(db, 'waiting_line', eventRef.id); // Utiliza o ID do evento como o ID do documento
+      await setDoc(waitingLineRef, {
+        event_title: title, // Adiciona o título do evento
+        user_id: [],  // Agora inicializa um array vazio
+      });
+
+
+
+      // Agora, adiciona o ID do evento à lista de own_event do usuário
+      const userRef = doc(db, 'users', user.uid);
+      await updateDoc(userRef, {
+        own_event: arrayUnion(eventRef.id), // Adiciona o ID do evento à lista de eventos próprios
+      });
+
       alert('Evento criado com sucesso!');
       setLoading(false);
+
       // Reset fields
       setTitle(''); setDescription(''); setLocation('');
       setCep(''); setStreet(''); setNeighborhood(''); setImage_uri('');
@@ -67,21 +84,22 @@ export default function NewEvent() {
       alert('Erro ao criar evento');
     }
   };
+
   return (
     <SafeAreaView className="flex-1 bg-white">
       <Stack.Screen options={{
         title: "Novo Evento",
         headerTintColor: 'white',
-        headerTitleStyle: { 
+        headerTitleStyle: {
           fontFamily: 'Inter_600SemiBold',
           fontSize: 18,
           color: 'black'
         },
         headerRight: () => (
-          <MaterialCommunityIcons 
-            name="party-popper" 
-            size={24} 
-            color="white" 
+          <MaterialCommunityIcons
+            name="party-popper"
+            size={24}
+            color="white"
             style={{ marginRight: 16 }}
           />
         )
@@ -123,7 +141,7 @@ export default function NewEvent() {
             <MaterialCommunityIcons name="map-marker-outline" size={20} color="#db2777" />
             <Text className="text-rose-600 text-sm font-semibold ml-2">Localização</Text>
           </View>
-          
+
           <View className="mb-4">
             <TextInput
               placeholder="Digite o CEP (apenas números)"
@@ -157,10 +175,10 @@ export default function NewEvent() {
         onPress={createEvent}
         disabled={loading}
       >
-        <MaterialCommunityIcons 
-          name="gift-outline" 
-          size={24} 
-          color="white" 
+        <MaterialCommunityIcons
+          name="gift-outline"
+          size={24}
+          color="white"
           className="mr-2"
         />
         <Text className="text-center text-white font-semibold text-lg">
