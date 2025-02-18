@@ -22,6 +22,11 @@ export default function DrawerLayout() {
                     name="myEvents"
                     options={{ drawerLabel: 'Minhas Participações' }}
                 />
+
+                <Drawer.Screen
+                    name="waiting_list"
+                    options={{ drawerLabel: 'Fila de Espera' }}
+                />
             </Drawer>
         </GestureHandlerRootView>
     );
