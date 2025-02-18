@@ -46,7 +46,6 @@ export default function NewEvent() {
       setLoading(true);
       const randomImageUrl = `https://picsum.photos/200/300?random=${Math.floor(Math.random() * 1000)}`;
 
-      // Cria o evento na coleção 'events'
       const eventRef = doc(collection(db, 'events'));
       await setDoc(eventRef, {
         title,
@@ -57,25 +56,20 @@ export default function NewEvent() {
         createdAt: serverTimestamp(),
       });
 
-      
-      const waitingLineRef = doc(db, 'waiting_line', eventRef.id); // Utiliza o ID do evento como o ID do documento
+      const waitingLineRef = doc(db, 'waiting_line', eventRef.id);
       await setDoc(waitingLineRef, {
-        event_title: title, // Adiciona o título do evento
-        user_id: [],  // Agora inicializa um array vazio
+        event_title: title,
+        user_id: [],
       });
 
-
-
-      // Agora, adiciona o ID do evento à lista de own_event do usuário
       const userRef = doc(db, 'users', user.uid);
       await updateDoc(userRef, {
-        own_event: arrayUnion(eventRef.id), // Adiciona o ID do evento à lista de eventos próprios
+        own_event: arrayUnion(eventRef.id),
       });
 
       alert('Evento criado com sucesso!');
       setLoading(false);
 
-      // Reset fields
       setTitle(''); setDescription(''); setLocation('');
       setCep(''); setStreet(''); setNeighborhood(''); setImage_uri('');
     } catch (error) {

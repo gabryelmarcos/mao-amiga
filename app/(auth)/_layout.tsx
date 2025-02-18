@@ -5,7 +5,7 @@ export default function AuthLayout() {
     const { isAuthenticated } = useAuth();
 
     if (isAuthenticated) { 
-        return <Redirect href='/' />; // Caminho relativo para o arquivo "presentation"
+        return <Redirect href='/' />; 
     }
 
     return <Stack />;

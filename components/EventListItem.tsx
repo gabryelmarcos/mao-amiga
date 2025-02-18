@@ -29,7 +29,7 @@ export default function EventListItem({ event }) {
       <Link href={`/${event.id}`} asChild>
         <Pressable className="mb-4 p-4 bg-white rounded-2xl shadow-sm shadow-black/5">
           <View className="flex-row gap-4">
-            {/* Event Image with Category Badge */}
+            
             <View className="relative">
               <Image 
                 source={{ uri: event.image_uri || 'https://placehold.co/600x400/EEE/CCC' }} 
@@ -43,13 +43,11 @@ export default function EventListItem({ event }) {
               </View>
             </View>
 
-            {/* Content */}
             <View className="flex-1">
               <Text className="text-lg font-semibold text-gray-900 mb-1" numberOfLines={2}>
                 {event.title}
               </Text>
               
-              {/* Location and Time */}
               <View className="flex-row items-center mb-2 gap-2">
                 <View className="flex-row items-center">
                   <Feather name="map-pin" size={14} color="#6b7280" />
@@ -66,7 +64,6 @@ export default function EventListItem({ event }) {
                 </View>
               </View>
 
-              {/* Participants and Actions */}
               <View className="flex-row items-center justify-between">
                 <View className="flex-row items-center bg-gray-100 px-3 py-1 rounded-full">
                   <Feather name="users" size={14} color="#4b5563" />

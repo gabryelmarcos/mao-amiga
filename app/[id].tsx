@@ -2,28 +2,27 @@ import { Text, View, Image, Pressable, SafeAreaView } from 'react-native';
 import { useLocalSearchParams, Stack } from 'expo-router';
 import dayjs from 'dayjs';
 import { useState, useEffect } from 'react';
-import { getFirestore, doc, getDoc, collection, addDoc, query, where, getDocs, setDoc, updateDoc } from 'firebase/firestore';
+import { getFirestore, doc, getDoc, setDoc, updateDoc } from 'firebase/firestore';
 import { getAuth } from 'firebase/auth';
 
-// Inicializando o Firestore
 const db = getFirestore();
-const auth = getAuth();  // Obter a instância de autenticação
+const auth = getAuth();
 
 export default function EventPage() {
     const { id } = useLocalSearchParams();
-    const [event, setEvent] = useState(null);  // Estado para armazenar os dados do evento
-    const [error, setError] = useState(null);  // Estado para erro caso o evento não seja encontrado
-    const [isParticipating, setIsParticipating] = useState(false); // Estado para verificar se o usuário já está na fila de espera
+    const [event, setEvent] = useState(null);
+    const [error, setError] = useState(null);
+    const [isParticipating, setIsParticipating] = useState(false);
+
 
     useEffect(() => {
-        // Função para buscar evento do Firestore
         const fetchEvent = async () => {
             try {
-                const docRef = doc(db, 'events', id);  // Referência para o documento com o id fornecido
+                const docRef = doc(db, 'events', id);
                 const docSnap = await getDoc(docRef);
 
                 if (docSnap.exists()) {
-                    setEvent(docSnap.data());  // Armazena os dados do evento no estado
+                    setEvent(docSnap.data());
                 } else {
                     setError('Evento não encontrado');
                 }
@@ -33,16 +32,15 @@ export default function EventPage() {
             }
         };
 
-        // Função para verificar se o usuário já está na fila de espera
         const checkUserWaitingList = async () => {
             try {
-                const waitingListRef = doc(db, 'waiting_line', id);  // Referência à fila de espera do evento
+                const waitingListRef = doc(db, 'waiting_line', id);
 
                 const docSnap = await getDoc(waitingListRef);
                 if (docSnap.exists()) {
                     const waitingList = docSnap.data();
                     if (waitingList.user_id && waitingList.user_id.includes(auth.currentUser.uid)) {
-                        setIsParticipating(true);  // Usuário já está na fila de espera
+                        setIsParticipating(true);
                     }
                 }
             } catch (err) {
@@ -51,42 +49,36 @@ export default function EventPage() {
         };
 
         if (id) {
-            fetchEvent();  // Chama a função para buscar o evento
-            checkUserWaitingList();  // Verifica se o usuário já está na fila de espera
+            fetchEvent();
+            checkUserWaitingList();
         }
     }, [id]);
 
-    // Função para o usuário se inscrever na fila de espera
     const joinWaitingList = async () => {
         try {
             const userId = auth.currentUser.uid;
-            const waitingListRef = doc(db, 'waiting_line', id);  // Referência à fila de espera do evento
+            const waitingListRef = doc(db, 'waiting_line', id);
 
-            // Verificar se a fila de espera já existe
             const docSnap = await getDoc(waitingListRef);
             if (docSnap.exists()) {
-                // Documento existe, atualizamos o array de user_id
                 const waitingList = docSnap.data();
                 if (!waitingList.user_id) {
-                    // Se o campo "user_id" não existir, criamos ele como um array
                     await updateDoc(waitingListRef, {
-                        user_id: [userId],  // Inicializa com o ID do usuário
+                        user_id: [userId],
                     });
                 } else if (!waitingList.user_id.includes(userId)) {
-                    // Se o usuário ainda não estiver na fila, adicionamos o ID
                     await updateDoc(waitingListRef, {
-                        user_id: [...waitingList.user_id, userId],  // Adiciona o ID do usuário
+                        user_id: [...waitingList.user_id, userId],
                     });
                 }
             } else {
-                // Documento não existe, cria a fila de espera com o ID do usuário
                 await setDoc(waitingListRef, {
-                    user_id: [userId],  // Cria a fila com o ID do usuário
+                    user_id: [userId],
                 });
             }
 
             console.log('Usuário adicionado à fila de espera com sucesso');
-            setIsParticipating(true); // Atualiza o estado para indicar que o usuário está na fila de espera
+            setIsParticipating(true);
         } catch (err) {
             setError('Erro ao adicionar à fila de espera');
             console.error(err);
@@ -98,7 +90,7 @@ export default function EventPage() {
     }
 
     if (!event) {
-        return <Text>Carregando evento...</Text>;  // Exibe uma mensagem de carregamento
+        return <Text>Carregando evento...</Text>;
     }
 
     return (
@@ -116,11 +108,10 @@ export default function EventPage() {
             </Text>
             <Text className="text-lg" numberOfLines={2}>{event.description}</Text>
 
-            {/* Footer */}
             <View className="absolute bottom-0 left-0 right-0 flex-row justify-between border-t-2 border-gray-300 p-5 pb-10">
                 <Text className="text-xl font-semiBold">Inscrever-se</Text>
                 <Pressable
-                    onPress={isParticipating ? null : joinWaitingList} // Impede a inscrição se já estiver na fila de espera
+                    onPress={isParticipating ? null : joinWaitingList}
                     className="rounded-md bg-pink-500 p-5 px-8"
                 >
                     <Text className="text-lg font-bold text-white">

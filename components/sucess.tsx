@@ -1,27 +1,26 @@
 import { View, Text, TouchableOpacity } from 'react-native'
 import { MaterialIcons } from '@expo/vector-icons'
 import { LinearGradient } from 'expo-linear-gradient'
-import { useRouter } from 'expo-router'  // Importando o useRouter
+import { useRouter } from 'expo-router'
 
 export default function SuccessScreen() {
-  const router = useRouter();  // Inicializando o router
+  const router = useRouter();
 
   const handleExploreMoreEvents = () => {
-    router.push('/');  // Navegar para a rota index (ou a rota principal)
+    router.push('/');
   }
 
   return (
     <LinearGradient
-      colors={['#a7f3d0', '#34d399']} // Gradiente verde suave
-      style={{ flex: 1 }} // Garantir que o gradiente ocupe toda a tela
+      colors={['#a7f3d0', '#34d399']}
+      style={{ flex: 1 }}
     >
       <View className="flex-1 justify-center items-center p-6">
         <View className="items-center space-y-2.5 max-w-[300px]">
-          {/* Ícone */}
           <MaterialIcons
             name="check-circle"
             size={96}
-            color="#ec4899" // Cor rosa para o ícone
+            color="#ec4899"
             style={{
               shadowColor: '#db2777',
               shadowOffset: { width: 0, height: 4 },
@@ -30,7 +29,6 @@ export default function SuccessScreen() {
             }}
           />
 
-          {/* Mensagens */}
           <View className="items-center my-3">
             <Text className="text-2xl font-bold text-center text-[#064e3b]">
               Inscrição Concluída! 🎉
@@ -40,7 +38,6 @@ export default function SuccessScreen() {
             </Text>
           </View>
 
-          {/* Botão gradiente com rosa */}
           <TouchableOpacity
             activeOpacity={0.8}
             style={{
@@ -52,10 +49,10 @@ export default function SuccessScreen() {
               shadowOpacity: 0.3,
               shadowRadius: 10
             }}
-            onPress={handleExploreMoreEvents}  // Adicionando o evento de clique
+            onPress={handleExploreMoreEvents}
           >
             <LinearGradient
-              colors={['#ec4899', '#db2777']} // Gradiente rosa
+              colors={['#ec4899', '#db2777']}
               start={{ x: 0, y: 0 }}
               end={{ x: 1, y: 0 }}
               style={{
@@ -73,7 +70,6 @@ export default function SuccessScreen() {
             </LinearGradient>
           </TouchableOpacity>
 
-          {/* Elemento decorativo */}
           <View className="absolute z-[-10] w-[200%] h-[200%]">
             <View className="absolute top-[33%] left-[25%] w-40 h-40 bg-[#a7f3d0] rounded-full" />
             <View className="absolute top-[50%] right-[25%] w-32 h-32 bg-[#34d399] rounded-full" />

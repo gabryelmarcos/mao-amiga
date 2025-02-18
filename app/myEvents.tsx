@@ -6,21 +6,19 @@ import { getFirestore, collection, onSnapshot, doc, updateDoc, arrayRemove } fro
 import { getAuth } from 'firebase/auth';
 
 export default function MyEvents() {
-  const [events, setEvents] = useState([]); // Mantém o estado dos eventos
-  const db = getFirestore();  // Inicializa o Firestore
-  const auth = getAuth();  // Instância de autenticação do Firebase
+  const [events, setEvents] = useState([]);
+  const db = getFirestore();
+  const auth = getAuth();
 
-  // Função para buscar eventos do Firestore em tempo real
   const fetchEvents = () => {
-    const userId = auth.currentUser.uid;  // Obtém o ID do usuário logado
-    const attendancesRef = doc(db, 'attendances', userId);  // Referência para o documento de participações do usuário
+    const userId = auth.currentUser.uid;
+    const attendancesRef = doc(db, 'attendances', userId);
 
     onSnapshot(attendancesRef, async (docSnap) => {
       if (docSnap.exists()) {
         const userAttendance = docSnap.data();
-        const acceptedEvents = userAttendance.accepted || [];  // Pega os eventos aceitos (pode ser um array vazio)
+        const acceptedEvents = userAttendance.accepted || [];
 
-        // Agora, busca todos os eventos e escuta as mudanças
         const eventsRef = collection(db, 'events');
         const unsubscribe = onSnapshot(eventsRef, (querySnapshot) => {
           const eventsData = querySnapshot.docs
@@ -28,12 +26,11 @@ export default function MyEvents() {
               const eventData = doc.data();
               return { id: doc.id, ...eventData };
             })
-            .filter(event => acceptedEvents.includes(event.id));  // Filtra os eventos aceitos pelo usuário
+            .filter(event => acceptedEvents.includes(event.id));
 
-          setEvents(eventsData);  // Atualiza o estado com os eventos filtrados
+          setEvents(eventsData);
         });
 
-        // Cleanup da função de escuta quando o componente for desmontado
         return () => unsubscribe();
       } else {
         console.log("Usuário não tem participação registrada.");
@@ -41,46 +38,41 @@ export default function MyEvents() {
     });
   };
 
-  // Função para excluir a participação de um evento
   const handleUnregisterEvent = async (eventId) => {
     try {
-      const userId = auth.currentUser.uid;  // Obtém o ID do usuário logado
-      const attendancesRef = doc(db, 'attendances', userId);  // Referência para o documento de participações do usuário
+      const userId = auth.currentUser.uid;
+      const attendancesRef = doc(db, 'attendances', userId);
 
-      // Atualiza a lista de eventos aceitos, removendo o evento específico
       await updateDoc(attendancesRef, {
         accepted: arrayRemove(eventId),
       });
 
-      // Atualiza o estado localmente removendo o evento excluído
       setEvents(prevEvents => prevEvents.filter(event => event.id !== eventId));
     } catch (error) {
       console.error("Erro ao excluir participação: ", error);
     }
   };
 
-  // Função para confirmar a exclusão da participação
   const confirmUnregisterEvent = (eventId) => {
     Alert.alert(
-      "Confirmar Cancelamento",  // Título do alerta
-      "Você tem certeza que deseja cancelar sua participação neste evento?",  // Mensagem do alerta
+      "Confirmar Cancelamento",
+      "Você tem certeza que deseja cancelar sua participação neste evento?",
       [
         {
-          text: "Cancelar",  // Botão de cancelamento
+          text: "Cancelar",
           style: "cancel"
         },
         {
-          text: "Sim",  // Botão de confirmação
-          onPress: () => handleUnregisterEvent(eventId)  // Chama a função de exclusão
+          text: "Sim",
+          onPress: () => handleUnregisterEvent(eventId)
         }
       ]
     );
   };
 
-  // Chama a função fetchEvents assim que o componente for montado
   useEffect(() => {
     fetchEvents();
-  }, []);  // O array vazio significa que o useEffect será chamado apenas uma vez
+  }, []);
 
   return (
     <View>
@@ -90,14 +82,13 @@ export default function MyEvents() {
         <FlatList
           className="bg-white"
           style={{ backgroundColor: 'white' }}
-          data={events} // Dados de eventos filtrados
+          data={events}
           renderItem={({ item }) => (
             <View>
               <EventListItem event={item} />
-              {/* Botão para excluir a participação no evento */}
               <Pressable
                 className="mb-2 rounded-md bg-gray-100 p-3"
-                onPress={() => confirmUnregisterEvent(item.id)} // Chama a função de confirmação
+                onPress={() => confirmUnregisterEvent(item.id)}
               >
                 <Text className="text-center font-semibold text-red-500">
                   Cancelar Participação
@@ -105,7 +96,7 @@ export default function MyEvents() {
               </Pressable>
             </View>
           )}
-          keyExtractor={(item) => item.id} // Extrai uma chave única para cada item
+          keyExtractor={(item) => item.id}
         />
       ) : (
         <View>

@@ -4,37 +4,24 @@ import { Redirect } from 'expo-router';
 import { useAuth } from '~/contexts/AuthProvider';
 
 export default function DrawerLayout() {
-
-    
-    //   const {isAuthenticated} = useAuth();
-    //   // console.warn( isAuthenticated)
-    
-    //   if (isAuthenticated) {
-    //     return <Redirect href='/login' />
-    //   }
     return (
         <GestureHandlerRootView style={{ flex: 1 }}>
             <Drawer
                 screenOptions={{
-                    headerShown: false, // Desativa o cabeçalho
-                    drawerType: 'front', // Faz o Drawer aparecer na frente da tela
+                    headerShown: false,
+                    drawerType: 'front',
                 }}
             >
 
                 <Drawer.Screen
                     name="(tabs)"
-                    options={{ drawerLabel: 'Home', headerShown: false, }} // Nome que aparece no drawer
+                    options={{ drawerLabel: 'Home', headerShown: false }}
                 />
 
                 <Drawer.Screen
                     name="myEvents"
-                    options={{ drawerLabel: 'Minhas Participações' }} // Nome que aparece no drawer
+                    options={{ drawerLabel: 'Minhas Participações' }}
                 />
-
-                {/* <Drawer.Screen
-                    name="newEvent"
-                    options={{ drawerLabel: 'Adicionar Evento' }} // Nome que aparece no drawer
-                /> */}
             </Drawer>
         </GestureHandlerRootView>
     );

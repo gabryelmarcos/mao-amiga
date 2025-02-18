@@ -10,7 +10,7 @@ export default function TabLayout() {
   // console.warn( isAuthenticated)
 
   if (!isAuthenticated) {
-    return <Redirect href='/login' />; // Caminho relativo para o arquivo "presentation"
+    return <Redirect href='/login' />; 
   }
 
 

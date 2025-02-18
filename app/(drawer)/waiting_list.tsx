@@ -8,50 +8,43 @@ const db = getFirestore();
 const auth = getAuth();
 
 export default function WaitingScreen() {
-    const [userEvents, setUserEvents] = useState([]);  // Estado para armazenar nomes dos usuários e nomes dos eventos
-    const [error, setError] = useState(null);  // Estado para erros
-    const [loading, setLoading] = useState(true);  // Estado de carregamento
+    const [userEvents, setUserEvents] = useState([]);
+    const [error, setError] = useState(null);
+    const [loading, setLoading] = useState(true);
 
     useEffect(() => {
-        // Função para buscar os eventos que o usuário é responsável
         const fetchUserEvents = async () => {
             try {
                 const userId = auth.currentUser.uid;
-                const userRef = doc(db, 'users', userId);  // Referência ao documento do usuário
+                const userRef = doc(db, 'users', userId);
                 const userSnap = await getDoc(userRef);
 
                 if (userSnap.exists()) {
                     const userData = userSnap.data();
-                    const ownEvents = userData.own_event || [];  // Pega os eventos que o usuário é responsável
+                    const ownEvents = userData.own_event || [];
 
-                    // Para cada evento em own_event, buscamos a fila de espera
                     const usersInQueue = await Promise.all(ownEvents.map(async (eventId) => {
-                        const waitingListRef = doc(db, 'waiting_line', eventId);  // Referência à fila de espera do evento
+                        const waitingListRef = doc(db, 'waiting_line', eventId);
                         
-                        // Aqui, adicionamos um listener para mudanças em tempo real
                         onSnapshot(waitingListRef, async (snapshot) => {
                             if (snapshot.exists()) {
                                 const waitingList = snapshot.data();
-                                const userIds = waitingList.user_id || [];  // IDs dos usuários na fila de espera
-                                const eventTitle = waitingList.event_title || 'Evento sem nome';  // Nome do evento
+                                const userIds = waitingList.user_id || [];
+                                const eventTitle = waitingList.event_title || 'Evento sem nome';
 
-                                // Para cada usuário na fila, buscamos o nome
                                 const usersData = await Promise.all(userIds.map(async (userId) => {
-                                    const userRef = doc(db, 'users', userId);  // Referência ao documento do usuário
+                                    const userRef = doc(db, 'users', userId);
                                     const userSnap = await getDoc(userRef);
                                     if (userSnap.exists()) {
-                                        return { name: userSnap.data().full_name, eventTitle, userId, eventId };  // Retorna nome, título do evento, ID do usuário e eventId
+                                        return { name: userSnap.data().full_name, eventTitle, userId, eventId };
                                     }
                                     return null;
                                 }));
 
-                                // Atualiza a lista de usuários da fila
                                 setUserEvents(prevEvents => {
-                                    // Filtra os eventos que já foram carregados
                                     const existingEvents = prevEvents.filter(event => event.eventId !== eventId);
-                                    // Adiciona os novos usuários à lista existente
                                     const newUsers = usersData.filter(user => user != null);
-                                    return [...existingEvents, ...newUsers];  // Retorna a lista atualizada de usuários
+                                    return [...existingEvents, ...newUsers];
                                 });
                             }
                         });
@@ -63,11 +56,11 @@ export default function WaitingScreen() {
                 setError('Erro ao buscar eventos');
                 console.error(err);
             } finally {
-                setLoading(false);  // Finaliza o carregamento
+                setLoading(false);
             }
         };
 
-        fetchUserEvents();  // Chama a função para buscar os eventos do usuário
+        fetchUserEvents();
     }, []);
 
     if (loading) {
@@ -78,7 +71,6 @@ export default function WaitingScreen() {
         return <Text>{error}</Text>;
     }
 
-    // Função de renderização para a FlatList
     const renderItem = ({ item }) => (
         <View className="bg-white p-4 rounded-2xl shadow-sm mb-3 mx-2 flex-row items-center">
             <View className="bg-purple-100 p-3 rounded-full mr-4">
@@ -109,20 +101,17 @@ export default function WaitingScreen() {
         </View>
     );
 
-    // Função para confirmar o usuário
     const handleConfirm = async (userId, eventId) => {
         try {
-            // Passo 1: Adicionar o eventId no array 'accepted' na coleção 'attendances'
-            const attendanceRef = doc(db, 'attendances', userId);  // Referência à coleção 'attendances' usando userId
-            const attendanceSnap = await getDoc(attendanceRef);  // Obtém os dados do documento
+            const attendanceRef = doc(db, 'attendances', userId);
+            const attendanceSnap = await getDoc(attendanceRef);
 
             if (attendanceSnap.exists()) {
                 const attendanceData = attendanceSnap.data();
-                const acceptedEvents = attendanceData.accepted || [];  // Array de eventos aceitos
+                const acceptedEvents = attendanceData.accepted || [];
 
-                // Atualiza o array 'accepted' com o novo eventId
                 await updateDoc(attendanceRef, {
-                    accepted: arrayUnion(eventId),  // Adiciona o eventId no array 'accepted'
+                    accepted: arrayUnion(eventId),
                 });
 
                 console.log(`Evento ${eventId} adicionado à lista de aceitação do usuário ${userId}`);
@@ -130,25 +119,21 @@ export default function WaitingScreen() {
                 console.error('Usuário não encontrado na coleção de presenças');
             }
 
-            // Passo 2: Excluir o usuário da fila de espera
-            const waitingListRef = doc(db, 'waiting_line', eventId);  // Referência à fila de espera do evento com eventId
-            const waitingListSnap = await getDoc(waitingListRef);  // Obtém os dados da fila de espera
+            const waitingListRef = doc(db, 'waiting_line', eventId);
+            const waitingListSnap = await getDoc(waitingListRef);
 
             if (waitingListSnap.exists()) {
                 const waitingList = waitingListSnap.data();
                 const userIds = waitingList.user_id || [];
 
-                // Filtra o array de userIds, removendo o userId
                 const updatedUserIds = userIds.filter(id => id !== userId);
 
-                // Atualiza o documento da fila de espera
                 await updateDoc(waitingListRef, {
-                    user_id: updatedUserIds,  // Atualiza a lista de user_ids
+                    user_id: updatedUserIds,
                 });
 
                 console.log(`Usuário ${userId} removido da fila de espera para o evento ${eventId}`);
 
-                // Atualiza o estado local para refletir a remoção
                 setUserEvents(prevEvents => prevEvents.filter(item => item.userId !== userId || item.eventId !== eventId));
             } else {
                 console.error('Evento não encontrado na fila de espera');
@@ -159,7 +144,6 @@ export default function WaitingScreen() {
         }
     };
 
-    // Função para excluir o usuário da fila de espera
     const handleDelete = async (userId, eventId) => {
         try {
             const waitingListRef = doc(db, 'waiting_line', eventId);
@@ -169,7 +153,6 @@ export default function WaitingScreen() {
                 const waitingList = waitingListSnap.data();
                 const userIds = waitingList.user_id || [];
 
-                // Filtra o usuário a ser removido
                 const updatedUserIds = userIds.filter(id => id !== userId);
 
                 await updateDoc(waitingListRef, {
@@ -178,7 +161,6 @@ export default function WaitingScreen() {
 
                 console.log(`Usuário ${userId} removido da fila de espera para o evento ${eventId}`);
 
-                // Atualiza o estado para remover o item específico do evento
                 setUserEvents(prevEvents => prevEvents.filter(item => item.userId !== userId || item.eventId !== eventId));
             } else {
                 console.error('Evento não encontrado na fila de espera');

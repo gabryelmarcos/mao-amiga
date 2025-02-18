@@ -74,6 +74,7 @@ export default function Profile() {
   function handleONGLogin() {
     router.push('/myEvents');
   }
+
   return (
     <ScrollView className="flex-1 bg-slate-50">
       <Stack.Screen options={{ 
@@ -84,7 +85,6 @@ export default function Profile() {
       }} />
 
       <View className="p-6 space-y-8">
-        {/* Profile Header */}
         <View className="items-center space-y-4">
           <View className="w-20 h-20 bg-rose-500 rounded-full items-center justify-center shadow-lg">
             <Text className="text-white text-4xl">❤️</Text>
@@ -97,7 +97,6 @@ export default function Profile() {
           </View>
         </View>
 
-        {/* Information Section */}
         <View className="space-y-6">
           <View className="space-y-2">
             <Text className="text-xs text-slate-500 font-medium uppercase tracking-wide ml-2">
@@ -151,7 +150,6 @@ export default function Profile() {
           </View>
         </View>
 
-        {/* Action Buttons */}
         <View className="space-y-4">
           <Pressable
             onPress={updateProfile}
