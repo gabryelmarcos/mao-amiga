@@ -109,7 +109,7 @@ export default function EventPage() {
             <Text className="text-lg" numberOfLines={2}>{event.description}</Text>
 
             <View className="absolute bottom-0 left-0 right-0 flex-row justify-between border-t-2 border-gray-300 p-5 pb-10">
-                <Text className="text-xl font-semiBold">Inscrever-se</Text>
+                <Text className="text-xl font-semiBold">Doar</Text>
                 <Pressable
                     onPress={isParticipating ? null : joinWaitingList}
                     className="rounded-md bg-pink-500 p-5 px-8"
