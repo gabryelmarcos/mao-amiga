@@ -1,6 +1,6 @@
 import { createContext, useContext, useEffect, useState } from 'react';
 import { ActivityIndicator } from 'react-native';
-import { auth } from '~/utils/firebase'; 
+import { auth } from '~/utils/firebase'
 import { User} from 'firebase/auth'; 
 
 const AuthContext = createContext({});
