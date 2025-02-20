@@ -2,7 +2,11 @@
 INSTALAÇÃO DE DEPENDENCIAS 
 npm i
 
-autenticação do app: login com email e senha
+Rodar codigo : npx expo start
+
+
+
+autenticação do app: login com email e senha (realizar um cadastro)
 
 principais componentes e suas localizações
 
