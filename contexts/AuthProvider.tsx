@@ -1,27 +1,27 @@
 import { createContext, useContext, useEffect, useState } from 'react';
 import { ActivityIndicator } from 'react-native';
-import { auth } from '~/utils/firebase'; // Caminho do arquivo de configuração do Firebase
-import { User} from 'firebase/auth'; // Importando o tipo correto do Firebase
+import { auth } from '~/utils/firebase'; 
+import { User} from 'firebase/auth'; 
 
 const AuthContext = createContext({});
 
 export default function AuthProvider({ children }) {
-  const [user, setUser] = useState<User | null>(null); // Usando o tipo de User correto
+  const [user, setUser] = useState<User | null>(null); 
   const [isReady, setIsReady] = useState(false);
 
   useEffect(() => {
-    // Listener para mudanças de autenticação
+   
     const unsubscribe = auth.onAuthStateChanged((user) => {
-      setUser(user); // Define o usuário no estado
-      setIsReady(true); // Marca como pronto para renderizar a UI
+      setUser(user); 
+      setIsReady(true); 
     });
 
-    // Cleanup: remove o listener quando o componente for desmontado
+
     return () => unsubscribe();
   }, []);
 
   if (!isReady) {
-    return <ActivityIndicator />; // Exibe o indicador de carregamento enquanto a autenticação está sendo verificada
+    return <ActivityIndicator />;  
   }
 
   return (
